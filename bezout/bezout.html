@@ -1,0 +1,132 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+     input[type="text"] {text-align: center;
+       background-color:lightyellow;}
+     input[readonly] {background-color:lightgray;}
+     td {text-align: center;}
+</style>
+
+<script>
+var ellog;
+
+function trace(depth, s) {
+    ellog.value += "" + (depth+1) + ": ";
+    for(var i=0; i<depth; i++) {
+	ellog.value += "    ";
+    }
+    ellog.value += s + "\n";
+}
+
+function val(elname) {
+    return document.getElementById(elname).value;
+}
+
+function setval(elname, val) {
+    document.getElementById(elname).value = val;
+}
+
+function calc() {
+    ellog = document.getElementById("log");
+    ellog.value = "";
+
+    var a = parseInt(val("a"));
+    var b = parseInt(val("b"));
+    var yn = parseInt(val("yn"));
+
+    if(isNaN(a) || isNaN(b) || isNaN(yn)) {
+	alert("整数を入力してちょ");
+	return ;
+    }
+
+    var res = bezout(a,b,yn, 0);
+
+    setval("x", res[0]);
+    setval("y", res[1]);
+    setval("g", res[2]);
+}
+
+// returns [x,y,g]
+function bezout(a,b,yn, depth) {
+    var vx = "(y" + (depth + 1);
+    var vy = "(y" + depth;
+    trace(depth, "" + a + " * " + vx + ":?) + " +
+	  b + " * " + vy + ":?) = " +
+	  "gcd(" + a + "," + b + "):?");
+
+    var res;
+    if(b == 0) {
+	res = [1, yn, a];
+    } else {
+	var rres = bezout(b, a%b, yn, depth+1);
+	var y = (rres[2] - a * rres[1])/b;
+	res = [rres[1], y, rres[2]];
+    }
+
+    trace(depth, "" + a + " * "  + vx + ":" + res[0] + ") + " +
+	  b + " * " + vy + ":" + res[1] + ") = " 
+	  + "gcd(" + a + "," + b + "):" + res[2] + "");
+    return res;
+}
+</script>
+
+</head>
+<body>
+<h2>ベズーの等式: a*x + b*y = gcd(a,b) を解く<hr></h2>
+
+<a href="http://hooktail.org/wiki/index.php?kuhcrow%2F%BE%AE%A5%CD%A5%BF%2Fa%2Ax%2Bb%2Ay%3Dg">元のページ</a>
+
+<ul>
+<li>下の a, b, yn に整数を入力して計算ボタンで x, y, gcd(a,b) を表示します。
+<li>yn は任意の整数でよいです。変えると別の x, y を表示します（解は無数にあります）
+      <li>a and/or b が負の場合 gcd も負になるけど、細かいことは気にしないことにしましょう<br>
+(数学の定義では公約数は常に正とするようです）
+</ul>
+
+<form>
+<table border=0>
+<tr bgcolor="skyblue">
+      <th>a</th><th>*</th><th>x</th><th>+</th>
+      <th>b</th><th>*</th><th>y</th><th>=</th>
+      <th>gcd(a,b)</th>
+      <th></th>
+      <th>yn</th>
+</tr>
+
+<tr>
+<td><input type=text id=a value="10" size=5></td>
+<td>*</td>
+<td><input type=text id=x value="?" size=5 readonly></td>
+<td>+</td>
+<td><input type=text id=b value="7" size=5 ></td>
+<td>*</td>
+<td><input type=text id=y value="?" size=5 readonly></td>
+<td>=</td>
+<td><input type=text id=g value="?" size=5 readonly></td>
+<td></td>
+<td><input type=text id=yn value="0" size=5 ></td>
+</tr>
+</table>
+<input type=button value="計算" onclick="calc()"></td>
+<input type=reset value="リセット" ></td>
+<p>
+<b>ログ</b> ～ 以下では元の式を a * y1 + b * y0 = gcd(a,b) として表示しています
+<br>
+<textarea id=log cols=100 rows=20 readonly wrap=off></textarea>
+</form>
+<p>
+<b>変更履歴</b>
+<ul>
+<li>2014-10-27 ログの textarea の readonly 忘れ
+<li>2014-10-25 ログの説明を追加（重松さんの指摘）、
+ログの y0, y1 の順序が逆だった
+<li>2014-10-25 とりあえず公開
+</ul>
+
+</body>
+</html>
+
+
+
+
